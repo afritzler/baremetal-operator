@@ -1,0 +1,27 @@
+# permissions for end users to view dhcpconfigurations.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: dhcpconfiguration-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: baremetal-operator
+    app.kubernetes.io/part-of: baremetal-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: dhcpconfiguration-viewer-role
+rules:
+- apiGroups:
+  - dhcp.afritzler.github.io
+  resources:
+  - dhcpconfigurations
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - dhcp.afritzler.github.io
+  resources:
+  - dhcpconfigurations/status
+  verbs:
+  - get

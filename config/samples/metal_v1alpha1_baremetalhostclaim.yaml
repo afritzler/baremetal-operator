@@ -1,0 +1,11 @@
+apiVersion: metal.afritzler.github.io/v1alpha1
+kind: BareMetalHostClaim
+metadata:
+  name: baremetalhostclaim-sample
+spec:
+  power: "On"
+  bareMetalHostRef:
+    name: baremetalhost-sample
+  ignitionRef:
+    name: ignition-secret
+  image: foo:latest

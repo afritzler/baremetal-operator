@@ -1,0 +1,12 @@
+apiVersion: boot.afritzler.github.io/v1alpha1
+kind: PXE
+metadata:
+  labels:
+    app.kubernetes.io/name: pxe
+    app.kubernetes.io/instance: pxe-sample
+    app.kubernetes.io/part-of: baremetal-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: baremetal-operator
+  name: pxe-sample
+spec:
+  # TODO(user): Add fields here

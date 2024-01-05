@@ -1,0 +1,136 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: manager-role
+rules:
+- apiGroups:
+  - boot.afritzler.github.io
+  resources:
+  - dhcps
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - boot.afritzler.github.io
+  resources:
+  - dhcps/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - boot.afritzler.github.io
+  resources:
+  - dhcps/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - boot.afritzler.github.io
+  resources:
+  - pxes
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - boot.afritzler.github.io
+  resources:
+  - pxes/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - boot.afritzler.github.io
+  resources:
+  - pxes/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - core.afritzler.github.io
+  resources:
+  - baremetalhostclaims
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - core.afritzler.github.io
+  resources:
+  - baremetalhostclaims/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - core.afritzler.github.io
+  resources:
+  - baremetalhostclaims/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - core.afritzler.github.io
+  resources:
+  - baremetalhosts
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - core.afritzler.github.io
+  resources:
+  - baremetalhosts/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - core.afritzler.github.io
+  resources:
+  - baremetalhosts/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - metal.afritzler.github.io
+  resources:
+  - baremetalhosts
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - metal.afritzler.github.io
+  resources:
+  - baremetalhosts/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - metal.afritzler.github.io
+  resources:
+  - baremetalhosts/status
+  verbs:
+  - get
+  - patch
+  - update

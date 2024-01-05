@@ -1,0 +1,13 @@
+apiVersion: metal.afritzler.github.io/v1alpha1
+kind: BareMetalHost
+metadata:
+  name: compute-4
+spec:
+  systemId: "System-4"
+  power: "Off"
+  bootMACAddress: "77:1f:e0:01:be:82"
+  bmc:
+    address: http://127.0.0.1:8000
+    type: RedfishLocal
+    secretRef:
+      name: foo

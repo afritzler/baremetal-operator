@@ -1,0 +1,8 @@
+resources:
+  - metal_v1alpha1_baremetalhost.yaml
+  - metal_v1alpha1_baremetalhost2.yaml
+  - metal_v1alpha1_baremetalhost3.yaml
+  - metal_v1alpha1_baremetalhost4.yaml
+  - metal_v1alpha1_baremetalhost5.yaml
+  - metal_v1alpha1_baremetalhost6.yaml
+  - metal_v1alpha1_baremetalhost7.yaml

@@ -1,0 +1,12 @@
+apiVersion: boot.afritzler.github.io/v1alpha1
+kind: DHCP
+metadata:
+  labels:
+    app.kubernetes.io/name: dhcp
+    app.kubernetes.io/instance: dhcp-sample
+    app.kubernetes.io/part-of: baremetal-operator
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: baremetal-operator
+  name: dhcp-sample
+spec:
+  # TODO(user): Add fields here

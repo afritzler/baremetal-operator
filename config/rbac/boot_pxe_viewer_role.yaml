@@ -1,0 +1,27 @@
+# permissions for end users to view pxes.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: pxe-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: baremetal-operator
+    app.kubernetes.io/part-of: baremetal-operator
+    app.kubernetes.io/managed-by: kustomize
+  name: pxe-viewer-role
+rules:
+- apiGroups:
+  - boot.afritzler.github.io
+  resources:
+  - pxes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - boot.afritzler.github.io
+  resources:
+  - pxes/status
+  verbs:
+  - get

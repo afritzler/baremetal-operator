@@ -1,0 +1,7 @@
+## Append samples of your project ##
+resources:
+- metal_v1alpha1_baremetalhost.yaml
+- metal_v1alpha1_baremetalhostclaim.yaml
+- boot_v1alpha1_pxe.yaml
+- boot_v1alpha1_dhcp.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples
