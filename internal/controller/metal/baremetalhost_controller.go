@@ -19,6 +19,7 @@ package metal
 import (
 	"context"
 	"fmt"
+
 	metalv1alpha1 "github.com/afritzler/baremetal-operator/api/metal/v1alpha1"
 	"github.com/afritzler/baremetal-operator/internal/bmc"
 	"github.com/go-logr/logr"
@@ -65,8 +66,13 @@ func (r *BareMetalHostReconciler) delete(ctx context.Context, log logr.Logger, h
 func (r *BareMetalHostReconciler) reconcile(ctx context.Context, log logr.Logger, host *metalv1alpha1.BareMetalHost) error {
 	log.V(1).Info("Reconciling host")
 
+	bmcClient, err := createBMCClient(ctx, host)
+	if err != nil {
+		return fmt.Errorf("failed to create BMC client: %w", err)
+	}
+
 	log.V(1).Info("Ensuring host power state")
-	if err := r.ensurePowerState(ctx, log, host); err != nil {
+	if err := r.ensurePowerState(ctx, log, bmcClient, host); err != nil {
 		return err
 	}
 	log.V(1).Info("Ensured host power state")
@@ -78,7 +84,6 @@ func (r *BareMetalHostReconciler) reconcile(ctx context.Context, log logr.Logger
 	log.V(1).Info("Updated host status from system information")
 
 	log.V(1).Info("Ensuring state transition")
-	var err error
 	var oldStatus, newStatus metalv1alpha1.HostState
 	if oldStatus, newStatus, err = r.ensureHostStatus(ctx, log, host); err != nil {
 		return err
@@ -89,12 +94,7 @@ func (r *BareMetalHostReconciler) reconcile(ctx context.Context, log logr.Logger
 	return nil
 }
 
-func (r *BareMetalHostReconciler) ensurePowerState(ctx context.Context, log logr.Logger, host *metalv1alpha1.BareMetalHost) error {
-	bmcClient, err := createBMCClient(ctx, host)
-	if err != nil {
-		return fmt.Errorf("failed to create BMC client: %w", err)
-	}
-
+func (r *BareMetalHostReconciler) ensurePowerState(ctx context.Context, log logr.Logger, bmcClient bmc.BMC, host *metalv1alpha1.BareMetalHost) error {
 	if host.Spec.Power == metalv1alpha1.PowerStateOn {
 		if err := bmcClient.PowerOn(); err != nil {
 			return fmt.Errorf("failed to change power state to %s: %w", metalv1alpha1.PowerStateOn, err)
