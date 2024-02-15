@@ -3,6 +3,7 @@ package bmc
 import (
 	"context"
 	"fmt"
+
 	"github.com/stmcginnis/gofish"
 	"github.com/stmcginnis/gofish/redfish"
 )

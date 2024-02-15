@@ -94,7 +94,7 @@ func (r *BareMetalHostReconciler) reconcile(ctx context.Context, log logr.Logger
 	return nil
 }
 
-func (r *BareMetalHostReconciler) ensurePowerState(ctx context.Context, log logr.Logger, bmcClient bmc.BMC, host *metalv1alpha1.BareMetalHost) error {
+func (r *BareMetalHostReconciler) ensurePowerState(_ context.Context, _ logr.Logger, bmcClient bmc.BMC, host *metalv1alpha1.BareMetalHost) error {
 	if host.Spec.Power == metalv1alpha1.PowerStateOn {
 		if err := bmcClient.PowerOn(); err != nil {
 			return fmt.Errorf("failed to change power state to %s: %w", metalv1alpha1.PowerStateOn, err)
@@ -212,14 +212,14 @@ func (r *BareMetalHostReconciler) updateHostStatusFromSystemInfo(ctx context.Con
 				// Update existing Processor
 				host.Status.Processors[i] = metalv1alpha1.Processor{
 					ID:                    newProcessor.ID,
-					ProcessorType:         string(newProcessor.ProcessorType),
-					ProcessorArchitecture: string(newProcessor.ProcessorArchitecture),
-					InstructionSet:        string(newProcessor.InstructionSet),
+					ProcessorType:         newProcessor.ProcessorType,
+					ProcessorArchitecture: newProcessor.ProcessorArchitecture,
+					InstructionSet:        newProcessor.InstructionSet,
 					Manufacturer:          newProcessor.Manufacturer,
 					Model:                 newProcessor.Model,
-					MHz:                   int32(newProcessor.MaxSpeedMHz),
-					Cores:                 int32(newProcessor.TotalCores),
-					Threads:               int32(newProcessor.TotalThreads),
+					MHz:                   newProcessor.MaxSpeedMHz,
+					Cores:                 newProcessor.TotalCores,
+					Threads:               newProcessor.TotalThreads,
 				}
 				updated = true
 				break
@@ -229,14 +229,14 @@ func (r *BareMetalHostReconciler) updateHostStatusFromSystemInfo(ctx context.Con
 		if !updated {
 			host.Status.Processors = append(host.Status.Processors, metalv1alpha1.Processor{
 				ID:                    newProcessor.ID,
-				ProcessorType:         string(newProcessor.ProcessorType),
-				ProcessorArchitecture: string(newProcessor.ProcessorArchitecture),
-				InstructionSet:        string(newProcessor.InstructionSet),
+				ProcessorType:         newProcessor.ProcessorType,
+				ProcessorArchitecture: newProcessor.ProcessorArchitecture,
+				InstructionSet:        newProcessor.InstructionSet,
 				Manufacturer:          newProcessor.Manufacturer,
 				Model:                 newProcessor.Model,
-				MHz:                   int32(newProcessor.MaxSpeedMHz),
-				Cores:                 int32(newProcessor.TotalCores),
-				Threads:               int32(newProcessor.TotalThreads),
+				MHz:                   newProcessor.MaxSpeedMHz,
+				Cores:                 newProcessor.TotalCores,
+				Threads:               newProcessor.TotalThreads,
 			})
 		}
 	}

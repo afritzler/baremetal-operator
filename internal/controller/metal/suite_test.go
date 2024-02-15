@@ -18,7 +18,6 @@ package metal
 
 import (
 	"fmt"
-	coreafritzlergithubiov1alpha1 "github.com/afritzler/baremetal-operator/api/metal/v1alpha1"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -26,6 +25,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
+	coreafritzlergithubiov1alpha1 "github.com/afritzler/baremetal-operator/api/metal/v1alpha1"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
