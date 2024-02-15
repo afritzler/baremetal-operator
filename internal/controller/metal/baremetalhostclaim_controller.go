@@ -19,6 +19,7 @@ package metal
 import (
 	"context"
 	"fmt"
+
 	"github.com/afritzler/baremetal-operator/api/boot/v1alpha1"
 	metalv1alpha1 "github.com/afritzler/baremetal-operator/api/metal/v1alpha1"
 	"github.com/go-logr/logr"
@@ -177,7 +178,7 @@ func (r *BareMetalHostClaimReconciler) reconcile(ctx context.Context, log logr.L
 	return ctrl.Result{}, nil
 }
 
-func (r *BareMetalHostClaimReconciler) applyPXEConfiguration(ctx context.Context, log logr.Logger, claim *metalv1alpha1.BareMetalHostClaim) error {
+func (r *BareMetalHostClaimReconciler) applyPXEConfiguration(ctx context.Context, _ logr.Logger, claim *metalv1alpha1.BareMetalHostClaim) error {
 	pxe := &v1alpha1.PXE{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "PXE",
@@ -211,7 +212,7 @@ func (r *BareMetalHostClaimReconciler) applyPXEConfiguration(ctx context.Context
 	return nil
 }
 
-func (r *BareMetalHostClaimReconciler) applyDHCPConfiguration(ctx context.Context, log logr.Logger, claim *metalv1alpha1.BareMetalHostClaim) error {
+func (r *BareMetalHostClaimReconciler) applyDHCPConfiguration(ctx context.Context, _ logr.Logger, claim *metalv1alpha1.BareMetalHostClaim) error {
 	dhcp := &v1alpha1.DHCP{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "DHCP",
