@@ -1,6 +1,7 @@
 package bmc
 
 import (
+	"github.com/stmcginnis/gofish"
 	"github.com/stmcginnis/gofish/common"
 	"github.com/stmcginnis/gofish/redfish"
 )
@@ -21,6 +22,9 @@ type BMC interface {
 
 	// GetSystemInfo retrieves information about the system.
 	GetSystemInfo() (SystemInfo, error)
+
+	// GetClient returns the BMC API client
+	GetClient() *gofish.APIClient
 }
 
 type NetworkInterface struct {

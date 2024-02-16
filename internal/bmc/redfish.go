@@ -33,6 +33,11 @@ func NewRedfishBMC(ctx context.Context, systemId string, url, username, password
 	return &RedfishLocalBMC{systemId: systemId, client: client}, nil
 }
 
+// GetClient returns the BMC API client
+func (r *RedfishBMC) GetClient() *gofish.APIClient {
+	return r.client
+}
+
 // PowerOn powers on the system using Redfish.
 func (r *RedfishBMC) PowerOn() error {
 	systems, err := r.client.GetService().Systems()
