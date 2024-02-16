@@ -17,7 +17,7 @@ type RedfishBMC struct {
 }
 
 // NewRedfishBMC creates a new RedfishLocalBMC with the given connection details.
-func NewRedfishBMC(ctx context.Context, systemId string, url, username, password string, basicAuth bool) (*RedfishLocalBMC, error) {
+func NewRedfishBMC(ctx context.Context, systemId string, url, username, password string, basicAuth bool) (*RedfishBMC, error) {
 	clientConfig := gofish.ClientConfig{
 		Endpoint:  url,
 		Username:  username,
@@ -30,7 +30,7 @@ func NewRedfishBMC(ctx context.Context, systemId string, url, username, password
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to redfish endpoint: %w", err)
 	}
-	return &RedfishLocalBMC{systemId: systemId, client: client}, nil
+	return &RedfishBMC{systemId: systemId, client: client}, nil
 }
 
 // GetClient returns the BMC API client
