@@ -45,7 +45,7 @@ func (r *RedfishLocalBMC) PowerOn() error {
 	system.PowerState = redfish.OnPowerState
 	systemURI := fmt.Sprintf("/redfish/v1/Systems/%s", system.ID)
 	if err := system.Patch(systemURI, system); err != nil {
-		return fmt.Errorf("failed to set power state %s for system %s", redfish.OnPowerState, r.systemId)
+		return fmt.Errorf("failed to set power state %s for system %s: %w", redfish.OnPowerState, r.systemId, err)
 	}
 
 	return nil
@@ -66,7 +66,7 @@ func (r *RedfishLocalBMC) PowerOff() error {
 	system.PowerState = redfish.OffPowerState
 	systemURI := fmt.Sprintf("/redfish/v1/Systems/%s", system.ID)
 	if err := system.Patch(systemURI, system); err != nil {
-		return fmt.Errorf("failed to set power state %s for system %s", redfish.OffPowerState, r.systemId)
+		return fmt.Errorf("failed to set power state %s for system %s: %w", redfish.OffPowerState, r.systemId, err)
 	}
 
 	return nil
