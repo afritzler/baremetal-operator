@@ -23,6 +23,7 @@ import (
 	metalv1alpha1 "github.com/afritzler/baremetal-operator/api/metal/v1alpha1"
 	"github.com/afritzler/baremetal-operator/internal/bmc"
 	"github.com/go-logr/logr"
+	"github.com/stmcginnis/gofish/redfish"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -74,17 +75,17 @@ func (r *BareMetalHostReconciler) reconcile(ctx context.Context, log logr.Logger
 		return fmt.Errorf("failed to create BMC client: %w", err)
 	}
 
+	log.V(1).Info("Updating host status from system information")
+	if err := r.updateHostStatusFromSystemInfo(ctx, log, host, bmcClient); err != nil {
+		return err
+	}
+	log.V(1).Info("Updated host status from system information")
+
 	log.V(1).Info("Ensuring host power state")
 	if err := r.ensurePowerState(ctx, log, bmcClient, host); err != nil {
 		return err
 	}
 	log.V(1).Info("Ensured host power state")
-
-	log.V(1).Info("Updating host status from system information")
-	if err := r.updateHostStatusFromSystemInfo(ctx, log, host); err != nil {
-		return err
-	}
-	log.V(1).Info("Updated host status from system information")
 
 	log.V(1).Info("Ensuring state transition")
 	var oldStatus, newStatus metalv1alpha1.HostState
@@ -105,11 +106,13 @@ func (r *BareMetalHostReconciler) ensurePowerState(_ context.Context, _ logr.Log
 		}
 	}
 
-	if host.Spec.Power == metalv1alpha1.PowerStateOn {
+	if host.Spec.Power == metalv1alpha1.PowerStateOn && host.Status.PowerState == redfish.OffPowerState {
 		if err := bmcClient.PowerOn(); err != nil {
 			return fmt.Errorf("failed to change power state to %s: %w", metalv1alpha1.PowerStateOn, err)
 		}
-	} else {
+	}
+
+	if host.Spec.Power == metalv1alpha1.PowerStateOff && host.Status.PowerState == redfish.OnPowerState {
 		if err := bmcClient.PowerOff(); err != nil {
 			return fmt.Errorf("failed to change power state to %s: %w", metalv1alpha1.PowerStateOff, err)
 		}
@@ -207,12 +210,7 @@ func (r *BareMetalHostReconciler) ensureHostStatus(ctx context.Context, log logr
 	return metalv1alpha1.StateInitial, metalv1alpha1.StateInitial, nil
 }
 
-func (r *BareMetalHostReconciler) updateHostStatusFromSystemInfo(ctx context.Context, log logr.Logger, host *metalv1alpha1.BareMetalHost) error {
-	bmcClient, err := r.createBMCClient(ctx, host)
-	if err != nil {
-		return fmt.Errorf("failed to create BMC client: %w", err)
-	}
-
+func (r *BareMetalHostReconciler) updateHostStatusFromSystemInfo(ctx context.Context, log logr.Logger, host *metalv1alpha1.BareMetalHost, bmcClient bmc.BMC) error {
 	log.V(1).Info("Getting system info")
 	info, err := bmcClient.GetSystemInfo()
 	if err != nil {
