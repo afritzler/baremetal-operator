@@ -45,10 +45,8 @@ func (r *RedfishBMC) PowerOn() error {
 		return fmt.Errorf("no system found for system ID %s", r.systemId)
 	}
 
-	system.PowerState = redfish.OnPowerState
-	systemURI := fmt.Sprintf("/redfish/v1/Systems/%s", system.ID)
-	if err := system.Patch(systemURI, system); err != nil {
-		return fmt.Errorf("failed to set power state %s for system %s", redfish.OnPowerState, r.systemId)
+	if err := system.Reset(redfish.OnResetType); err != nil {
+		return fmt.Errorf("failed to reset system to power on state: %w", err)
 	}
 
 	return nil
@@ -66,10 +64,8 @@ func (r *RedfishBMC) PowerOff() error {
 		return fmt.Errorf("no system found for system ID %s", r.systemId)
 	}
 
-	system.PowerState = redfish.OffPowerState
-	systemURI := fmt.Sprintf("/redfish/v1/Systems/%s", system.ID)
-	if err := system.Patch(systemURI, system); err != nil {
-		return fmt.Errorf("failed to set power state %s for system %s", redfish.OffPowerState, r.systemId)
+	if err := system.Reset(redfish.GracefulShutdownResetType); err != nil {
+		return fmt.Errorf("failed to reset system to graceful shutdown: %w", err)
 	}
 
 	return nil
