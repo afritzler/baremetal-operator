@@ -74,6 +74,7 @@ func (r *BareMetalHostReconciler) reconcile(ctx context.Context, log logr.Logger
 	if err != nil {
 		return fmt.Errorf("failed to create BMC client: %w", err)
 	}
+	defer bmcClient.GetClient().Logout()
 
 	log.V(1).Info("Updating host status from system information")
 	if err := r.updateHostStatusFromSystemInfo(ctx, log, host, bmcClient); err != nil {
