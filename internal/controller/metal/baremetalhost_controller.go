@@ -98,6 +98,13 @@ func (r *BareMetalHostReconciler) reconcile(ctx context.Context, log logr.Logger
 }
 
 func (r *BareMetalHostReconciler) ensurePowerState(_ context.Context, _ logr.Logger, bmcClient bmc.BMC, host *metalv1alpha1.BareMetalHost) error {
+	// TODO: this needs to go into the actual state machine
+	if host.Status.State == metalv1alpha1.StateInitial {
+		if err := bmcClient.SetPXEBootOnce(host.Spec.SystemID); err != nil {
+			return fmt.Errorf("failed to set boot PXE once boot order for host: %w", err)
+		}
+	}
+
 	if host.Spec.Power == metalv1alpha1.PowerStateOn {
 		if err := bmcClient.PowerOn(); err != nil {
 			return fmt.Errorf("failed to change power state to %s: %w", metalv1alpha1.PowerStateOn, err)

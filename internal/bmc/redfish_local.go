@@ -73,8 +73,8 @@ func (r *RedfishLocalBMC) Reset() error {
 	return nil
 }
 
-// SetBootDevice sets the boot device for the next system boot using Redfish.
-func (r *RedfishLocalBMC) SetBootDevice(device string) error {
+// SetPXEBootOnce sets the boot device for the next system boot using Redfish.
+func (r *RedfishLocalBMC) SetPXEBootOnce(systemID string) error {
 	// Implementation details...
 	return nil
 }

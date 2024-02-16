@@ -61,7 +61,7 @@ func main() {
 	var PXEServiceNamespace string
 	var basicAuth bool
 
-	flag.BoolVar(&basicAuth, "leader-elect", false, "Enable or disable the basic auth when using the Redfish client.")
+	flag.BoolVar(&basicAuth, "basic-auth", true, "Enable or disable the basic auth when using the Redfish client.")
 	flag.StringVar(&PXEServiceNamespace, "pxe-namespace", "oob", "The namespace of the PXE service.")
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
