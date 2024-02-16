@@ -23,6 +23,7 @@ import (
 	metalv1alpha1 "github.com/afritzler/baremetal-operator/api/metal/v1alpha1"
 	"github.com/afritzler/baremetal-operator/internal/bmc"
 	"github.com/go-logr/logr"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -31,12 +32,14 @@ import (
 // BareMetalHostReconciler reconciles a BareMetalHost object
 type BareMetalHostReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme    *runtime.Scheme
+	BasicAuth bool
 }
 
 //+kubebuilder:rbac:groups=metal.afritzler.github.io,resources=baremetalhosts,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=metal.afritzler.github.io,resources=baremetalhosts/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=metal.afritzler.github.io,resources=baremetalhosts/finalizers,verbs=update
+//+kubebuilder:rbac:groups=core,resources=secrets,verbs=get
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -66,7 +69,7 @@ func (r *BareMetalHostReconciler) delete(ctx context.Context, log logr.Logger, h
 func (r *BareMetalHostReconciler) reconcile(ctx context.Context, log logr.Logger, host *metalv1alpha1.BareMetalHost) error {
 	log.V(1).Info("Reconciling host")
 
-	bmcClient, err := createBMCClient(ctx, host)
+	bmcClient, err := r.createBMCClient(ctx, host)
 	if err != nil {
 		return fmt.Errorf("failed to create BMC client: %w", err)
 	}
@@ -108,13 +111,30 @@ func (r *BareMetalHostReconciler) ensurePowerState(_ context.Context, _ logr.Log
 	return nil
 }
 
-func createBMCClient(ctx context.Context, host *metalv1alpha1.BareMetalHost) (bmc.BMC, error) {
+func (r *BareMetalHostReconciler) createBMCClient(ctx context.Context, host *metalv1alpha1.BareMetalHost) (bmc.BMC, error) {
 	var err error
 	var bmcClient bmc.BMC
 
 	switch host.Spec.BMC.Type {
 	case metalv1alpha1.BMCTypeRedfishLocal:
 		bmcClient, err = bmc.NewRedfishLocalBMC(ctx, host.Spec.SystemID, host.Spec.BMC.Address)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create redfish local client: %w", err)
+		}
+	case metalv1alpha1.BMCTypeRedfish:
+		bmcSecret := &v1.Secret{}
+		if err := r.Get(ctx, client.ObjectKey{Namespace: host.Spec.BMC.SecretRef.Namespace, Name: host.Spec.BMC.SecretRef.Name}, bmcSecret); err != nil {
+			return nil, fmt.Errorf("failed to get BMC access secret for host: %w", err)
+		}
+		username, ok := bmcSecret.Data["username"]
+		if !ok {
+			return nil, fmt.Errorf("no username provided in BMC access secret")
+		}
+		password, ok := bmcSecret.Data["password"]
+		if !ok {
+			return nil, fmt.Errorf("no password provided in BMC access secret")
+		}
+		bmcClient, err = bmc.NewRedfishBMC(ctx, host.Spec.SystemID, host.Spec.BMC.Address, string(username), string(password), r.BasicAuth)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create redfish client: %w", err)
 		}
@@ -181,7 +201,7 @@ func (r *BareMetalHostReconciler) ensureHostStatus(ctx context.Context, log logr
 }
 
 func (r *BareMetalHostReconciler) updateHostStatusFromSystemInfo(ctx context.Context, log logr.Logger, host *metalv1alpha1.BareMetalHost) error {
-	bmcClient, err := createBMCClient(ctx, host)
+	bmcClient, err := r.createBMCClient(ctx, host)
 	if err != nil {
 		return fmt.Errorf("failed to create BMC client: %w", err)
 	}

@@ -62,6 +62,9 @@ spec:
                     type: string
                 type: object
                 x-kubernetes-map-type: atomic
+              fooUuid:
+                description: 'TODO: this needs to go in the future'
+                type: string
               ignitionRef:
                 description: |-
                   LocalObjectReference contains enough information to let you locate the

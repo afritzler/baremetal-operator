@@ -156,6 +156,9 @@ spec:
                     type: string
                 type: object
                 x-kubernetes-map-type: atomic
+              fooUuid:
+                description: 'TODO: remove this later as this is a dummy code'
+                type: string
               power:
                 type: string
               systemId:

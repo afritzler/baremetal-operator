@@ -58,6 +58,11 @@ func main() {
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
+	var PXEServiceNamespace string
+	var basicAuth bool
+
+	flag.BoolVar(&basicAuth, "leader-elect", false, "Enable or disable the basic auth when using the Redfish client.")
+	flag.StringVar(&PXEServiceNamespace, "pxe-namespace", "oob", "The namespace of the PXE service.")
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
@@ -95,8 +100,9 @@ func main() {
 	}
 
 	if err = (&metal.BareMetalHostReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:    mgr.GetClient(),
+		Scheme:    mgr.GetScheme(),
+		BasicAuth: basicAuth,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "BareMetalHost")
 		os.Exit(1)
@@ -109,8 +115,9 @@ func main() {
 		os.Exit(1)
 	}
 	if err = (&bootcontroller.PXEReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:              mgr.GetClient(),
+		Scheme:              mgr.GetScheme(),
+		PXEServiceNamespace: PXEServiceNamespace,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "PXE")
 		os.Exit(1)

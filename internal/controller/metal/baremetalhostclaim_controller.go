@@ -132,7 +132,7 @@ func (r *BareMetalHostClaimReconciler) reconcile(ctx context.Context, log logr.L
 
 	log.V(1).Info("Apply PXE configuration")
 	// TODO: we should wait until the PXE configuration is ready
-	if err := r.applyPXEConfiguration(ctx, log, claim); err != nil {
+	if err := r.applyPXEConfiguration(ctx, log, claim, host); err != nil {
 		return ctrl.Result{}, fmt.Errorf("failed to apply PXE configuration: %w", err)
 	}
 	log.V(1).Info("Applied PXE configuration")
@@ -161,10 +161,25 @@ func (r *BareMetalHostClaimReconciler) reconcile(ctx context.Context, log logr.L
 
 	if host.Spec.ClaimRef != nil {
 		log.V(1).Info("Ensure power state")
-		hostBase := host.DeepCopy()
-		host.Spec.Power = claim.Spec.Power
-		if err := r.Patch(ctx, host, client.MergeFrom(hostBase)); err != nil {
-			return ctrl.Result{}, fmt.Errorf("faield to patch the power status on host %s: %w", host.Name, err)
+		// only power on machine if the PXE configuration is ready
+		if claim.Spec.Power == metalv1alpha1.PowerStateOn && claim.Spec.IgnitionRef != nil {
+			pxeConfig := &v1alpha1.PXE{}
+			if err := r.Get(ctx, client.ObjectKey{Namespace: claim.Namespace, Name: claim.Name}, pxeConfig); err != nil {
+				return ctrl.Result{}, fmt.Errorf("failed to get PXE configuration for claim: %w", err)
+			}
+			if pxeConfig.Status.State == v1alpha1.PXEStateReady {
+				hostBase := host.DeepCopy()
+				host.Spec.Power = claim.Spec.Power
+				if err := r.Patch(ctx, host, client.MergeFrom(hostBase)); err != nil {
+					return ctrl.Result{}, fmt.Errorf("faield to patch the power status on host %s: %w", host.Name, err)
+				}
+			}
+		} else {
+			hostBase := host.DeepCopy()
+			host.Spec.Power = claim.Spec.Power
+			if err := r.Patch(ctx, host, client.MergeFrom(hostBase)); err != nil {
+				return ctrl.Result{}, fmt.Errorf("faield to patch the power status on host %s: %w", host.Name, err)
+			}
 		}
 		log.V(1).Info("Ensured power state")
 	}
@@ -178,7 +193,7 @@ func (r *BareMetalHostClaimReconciler) reconcile(ctx context.Context, log logr.L
 	return ctrl.Result{}, nil
 }
 
-func (r *BareMetalHostClaimReconciler) applyPXEConfiguration(ctx context.Context, _ logr.Logger, claim *metalv1alpha1.BareMetalHostClaim) error {
+func (r *BareMetalHostClaimReconciler) applyPXEConfiguration(ctx context.Context, _ logr.Logger, claim *metalv1alpha1.BareMetalHostClaim, host *metalv1alpha1.BareMetalHost) error {
 	pxe := &v1alpha1.PXE{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "PXE",
@@ -189,9 +204,10 @@ func (r *BareMetalHostClaimReconciler) applyPXEConfiguration(ctx context.Context
 			Name:      claim.Name,
 		},
 		Spec: v1alpha1.PXESpec{
-			BareMetalHostRef: claim.Spec.BareMetalHostRef,
-			IgnitionRef:      claim.Spec.IgnitionRef,
-			Image:            claim.Spec.Image,
+			BareMetalHostClaimRef: v1.LocalObjectReference{Name: claim.Name},
+			IgnitionRef:           claim.Spec.IgnitionRef,
+			Image:                 claim.Spec.Image,
+			FooUUID:               host.Spec.FooUUID,
 		},
 	}
 

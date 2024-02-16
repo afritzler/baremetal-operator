@@ -21,11 +21,18 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+var (
+	// PXEFinalizer is the finalizer for a PXE object.
+	PXEFinalizer = "boot.afritzler.github.io/pxe"
+)
+
 // PXESpec defines the desired state of PXE
 type PXESpec struct {
-	BareMetalHostRef v1.LocalObjectReference  `json:"bareMetalHostRef"`
-	IgnitionRef      *v1.LocalObjectReference `json:"ignitionRef,omitempty"`
-	Image            string                   `json:"image,omitempty"`
+	BareMetalHostClaimRef v1.LocalObjectReference  `json:"bareMetalHostRef"`
+	IgnitionRef           *v1.LocalObjectReference `json:"ignitionRef,omitempty"`
+	Image                 string                   `json:"image,omitempty"`
+	// TODO: this needs to go in the future
+	FooUUID string `json:"fooUuid,omitempty"`
 }
 
 type PXEState string
