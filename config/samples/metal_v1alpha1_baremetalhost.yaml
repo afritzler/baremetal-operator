@@ -5,9 +5,11 @@ metadata:
 spec:
   systemId: "System-1"
   power: "On"
+  fooUuid: "122334234234"
   bootMACAddress: "bc:55:85:92:de:b7"
   bmc:
     address: http://127.0.0.1:8000
-    type: RedfishLocal
+    type: Redfish
     secretRef:
       name: foo
+      namespace: default

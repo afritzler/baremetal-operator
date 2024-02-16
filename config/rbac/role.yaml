@@ -57,6 +57,18 @@ rules:
   - patch
   - update
 - apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
   - core.afritzler.github.io
   resources:
   - baremetalhostclaims
@@ -104,6 +116,26 @@ rules:
   - core.afritzler.github.io
   resources:
   - baremetalhosts/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - metal.afritzler.github.io
+  resources:
+  - baremetalhostclaims
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - metal.afritzler.github.io
+  resources:
+  - baremetalhostclaims/status
   verbs:
   - get
   - patch

@@ -7,5 +7,5 @@ spec:
   bareMetalHostRef:
     name: baremetalhost-sample
   ignitionRef:
-    name: ignition-secret
+    name: foo
   image: foo:latest

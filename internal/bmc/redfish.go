@@ -8,17 +8,25 @@ import (
 	"github.com/stmcginnis/gofish/redfish"
 )
 
-var _ BMC = (*RedfishLocalBMC)(nil)
+var _ BMC = (*RedfishBMC)(nil)
 
-// RedfishLocalBMC is an implementation of the BMC interface for Redfish.
-type RedfishLocalBMC struct {
+// RedfishBMC is an implementation of the BMC interface for Redfish.
+type RedfishBMC struct {
 	systemId string
 	client   *gofish.APIClient
 }
 
-// NewRedfishLocalBMC creates a new RedfishLocalBMC with the given connection details.
-func NewRedfishLocalBMC(ctx context.Context, systemId string, url string) (*RedfishLocalBMC, error) {
-	client, err := gofish.ConnectDefaultContext(ctx, url)
+// NewRedfishBMC creates a new RedfishLocalBMC with the given connection details.
+func NewRedfishBMC(ctx context.Context, systemId string, url, username, password string, basicAuth bool) (*RedfishLocalBMC, error) {
+	clientConfig := gofish.ClientConfig{
+		Endpoint:  url,
+		Username:  username,
+		Password:  password,
+		Session:   nil,
+		Insecure:  true,
+		BasicAuth: basicAuth,
+	}
+	client, err := gofish.ConnectContext(ctx, clientConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to redfish endpoint: %w", err)
 	}
@@ -26,7 +34,7 @@ func NewRedfishLocalBMC(ctx context.Context, systemId string, url string) (*Redf
 }
 
 // PowerOn powers on the system using Redfish.
-func (r *RedfishLocalBMC) PowerOn() error {
+func (r *RedfishBMC) PowerOn() error {
 	systems, err := r.client.GetService().Systems()
 	if err != nil {
 		return fmt.Errorf("failed to get systems: %w", err)
@@ -47,7 +55,7 @@ func (r *RedfishLocalBMC) PowerOn() error {
 }
 
 // PowerOff powers off the system using Redfish.
-func (r *RedfishLocalBMC) PowerOff() error {
+func (r *RedfishBMC) PowerOff() error {
 	systems, err := r.client.GetService().Systems()
 	if err != nil {
 		return fmt.Errorf("failed to get systems: %w", err)
@@ -68,19 +76,19 @@ func (r *RedfishLocalBMC) PowerOff() error {
 }
 
 // Reset performs a reset on the system using Redfish.
-func (r *RedfishLocalBMC) Reset() error {
+func (r *RedfishBMC) Reset() error {
 	// Implementation details...
 	return nil
 }
 
 // SetBootDevice sets the boot device for the next system boot using Redfish.
-func (r *RedfishLocalBMC) SetBootDevice(device string) error {
+func (r *RedfishBMC) SetBootDevice(device string) error {
 	// Implementation details...
 	return nil
 }
 
 // GetSystemInfo retrieves information about the system using Redfish.
-func (r *RedfishLocalBMC) GetSystemInfo() (SystemInfo, error) {
+func (r *RedfishBMC) GetSystemInfo() (SystemInfo, error) {
 	service := r.client.GetService()
 
 	systems, err := service.Systems()

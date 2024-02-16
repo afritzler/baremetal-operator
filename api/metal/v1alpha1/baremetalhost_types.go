@@ -51,7 +51,9 @@ const (
 
 // BareMetalHostSpec defines the desired state of BareMetalHost
 type BareMetalHostSpec struct {
-	SystemID string              `json:"systemId"`
+	SystemID string `json:"systemId"`
+	// TODO: remove this later as this is a dummy code
+	FooUUID  string              `json:"fooUuid,omitempty"`
 	Power    PowerState          `json:"power"`
 	ClaimRef *v1.ObjectReference `json:"claimRef,omitempty"`
 	BMC      BMCConfiguration    `json:"bmc"`
