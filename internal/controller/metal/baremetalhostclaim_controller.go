@@ -163,6 +163,7 @@ func (r *BareMetalHostClaimReconciler) reconcile(ctx context.Context, log logr.L
 		log.V(1).Info("Ensure power state")
 		// only power on machine if the PXE configuration is ready
 		if claim.Spec.Power == metalv1alpha1.PowerStateOn && claim.Spec.IgnitionRef != nil {
+			log.V(1).Info("Powering on host")
 			pxeConfig := &v1alpha1.PXE{}
 			if err := r.Get(ctx, client.ObjectKey{Namespace: claim.Namespace, Name: claim.Name}, pxeConfig); err != nil {
 				return ctrl.Result{}, fmt.Errorf("failed to get PXE configuration for claim: %w", err)
@@ -174,6 +175,7 @@ func (r *BareMetalHostClaimReconciler) reconcile(ctx context.Context, log logr.L
 					return ctrl.Result{}, fmt.Errorf("faield to patch the power status on host %s: %w", host.Name, err)
 				}
 			}
+			log.V(1).Info("Host powered on")
 		} else {
 			hostBase := host.DeepCopy()
 			host.Spec.Power = claim.Spec.Power

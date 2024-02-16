@@ -16,8 +16,8 @@ type BMC interface {
 	// Reset performs a reset on the system.
 	Reset() error
 
-	// SetBootDevice sets the boot device for the next system boot.
-	SetBootDevice(device string) error
+	// SetPXEBootOnce sets the boot device for the next system boot.
+	SetPXEBootOnce(systemID string) error
 
 	// GetSystemInfo retrieves information about the system.
 	GetSystemInfo() (SystemInfo, error)

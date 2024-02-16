@@ -81,9 +81,27 @@ func (r *RedfishBMC) Reset() error {
 	return nil
 }
 
-// SetBootDevice sets the boot device for the next system boot using Redfish.
-func (r *RedfishBMC) SetBootDevice(device string) error {
-	// Implementation details...
+// SetPXEBootOnce sets the boot device for the next system boot using Redfish.
+func (r *RedfishBMC) SetPXEBootOnce(systemID string) error {
+	service := r.client.GetService()
+
+	systems, err := service.Systems()
+	if err != nil {
+		return fmt.Errorf("failed to get systems: %w", err)
+	}
+
+	for _, system := range systems {
+		if system.ID == systemID {
+			if err := system.SetBoot(redfish.Boot{
+				BootSourceOverrideEnabled: redfish.OnceBootSourceOverrideEnabled,
+				BootSourceOverrideMode:    redfish.UEFIBootSourceOverrideMode,
+				BootSourceOverrideTarget:  redfish.PxeBootSourceOverrideTarget,
+			}); err != nil {
+				return fmt.Errorf("failed to set the boot order: %w", err)
+			}
+		}
+	}
+
 	return nil
 }
 
