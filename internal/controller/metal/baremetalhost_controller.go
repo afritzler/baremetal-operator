@@ -19,6 +19,7 @@ package metal
 import (
 	"context"
 	"fmt"
+	"time"
 
 	metalv1alpha1 "github.com/afritzler/baremetal-operator/api/metal/v1alpha1"
 	"github.com/afritzler/baremetal-operator/internal/bmc"
@@ -33,8 +34,8 @@ import (
 // BareMetalHostReconciler reconciles a BareMetalHost object
 type BareMetalHostReconciler struct {
 	client.Client
-	Scheme    *runtime.Scheme
-	BasicAuth bool
+	Scheme              *runtime.Scheme
+	HostRefreshInterval time.Duration
 }
 
 //+kubebuilder:rbac:groups=metal.afritzler.github.io,resources=baremetalhosts,verbs=get;list;watch;create;update;patch;delete
@@ -50,7 +51,7 @@ func (r *BareMetalHostReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	if err := r.Get(ctx, req.NamespacedName, host); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
-	return ctrl.Result{}, r.reconcileExists(ctx, log, host)
+	return ctrl.Result{RequeueAfter: r.HostRefreshInterval}, r.reconcileExists(ctx, log, host)
 }
 
 func (r *BareMetalHostReconciler) reconcileExists(ctx context.Context, log logr.Logger, host *metalv1alpha1.BareMetalHost) error {
@@ -145,7 +146,7 @@ func (r *BareMetalHostReconciler) createBMCClient(ctx context.Context, host *met
 		if !ok {
 			return nil, fmt.Errorf("no password provided in BMC access secret")
 		}
-		bmcClient, err = bmc.NewRedfishBMC(ctx, host.Spec.SystemID, host.Spec.BMC.Address, string(username), string(password), r.BasicAuth)
+		bmcClient, err = bmc.NewRedfishBMC(ctx, host.Spec.SystemID, host.Spec.BMC, string(username), string(password))
 		if err != nil {
 			return nil, fmt.Errorf("failed to create redfish client: %w", err)
 		}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/afritzler/baremetal-operator/api/metal/v1alpha1"
 	"github.com/stmcginnis/gofish"
 	"github.com/stmcginnis/gofish/redfish"
 )
@@ -17,14 +18,13 @@ type RedfishBMC struct {
 }
 
 // NewRedfishBMC creates a new RedfishLocalBMC with the given connection details.
-func NewRedfishBMC(ctx context.Context, systemId string, url, username, password string, basicAuth bool) (*RedfishBMC, error) {
+func NewRedfishBMC(ctx context.Context, systemId string, bmcConfig v1alpha1.BMCConfiguration, username, password string) (*RedfishBMC, error) {
 	clientConfig := gofish.ClientConfig{
-		Endpoint:  url,
+		Endpoint:  bmcConfig.Address,
 		Username:  username,
 		Password:  password,
-		Session:   nil,
 		Insecure:  true,
-		BasicAuth: basicAuth,
+		BasicAuth: bmcConfig.BasicAuth,
 	}
 	client, err := gofish.ConnectContext(ctx, clientConfig)
 	if err != nil {
