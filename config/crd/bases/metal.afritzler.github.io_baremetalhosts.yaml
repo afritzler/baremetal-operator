@@ -70,6 +70,8 @@ spec:
                 properties:
                   address:
                     type: string
+                  basicAuth:
+                    type: boolean
                   secretRef:
                     description: |-
                       SecretReference represents a Secret Reference. It has enough information to retrieve secret
@@ -89,6 +91,7 @@ spec:
                     type: string
                 required:
                 - address
+                - basicAuth
                 - secretRef
                 - type
                 type: object

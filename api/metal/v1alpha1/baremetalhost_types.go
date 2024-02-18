@@ -38,6 +38,7 @@ const (
 type BMCConfiguration struct {
 	Type      BMCType            `json:"type"`
 	Address   string             `json:"address"`
+	BasicAuth bool               `json:"basicAuth"`
 	SecretRef v1.SecretReference `json:"secretRef"`
 }
 
