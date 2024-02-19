@@ -160,7 +160,7 @@ func (r *BareMetalHostClaimReconciler) reconcile(ctx context.Context, log logr.L
 	}
 
 	if host.Spec.ClaimRef != nil {
-		log.V(1).Info("Ensure power state")
+		log.V(1).Info("Ensure host power state")
 		// only power on machine if the PXE configuration is ready
 		if claim.Spec.Power == metalv1alpha1.PowerStateOn && claim.Spec.IgnitionRef != nil {
 			log.V(1).Info("Powering on host")
@@ -169,21 +169,22 @@ func (r *BareMetalHostClaimReconciler) reconcile(ctx context.Context, log logr.L
 				return ctrl.Result{}, fmt.Errorf("failed to get PXE configuration for claim: %w", err)
 			}
 			if pxeConfig.Status.State == v1alpha1.PXEStateReady {
+				log.V(1).Info("PXE configuration ready: powering on host")
 				hostBase := host.DeepCopy()
 				host.Spec.Power = claim.Spec.Power
 				if err := r.Patch(ctx, host, client.MergeFrom(hostBase)); err != nil {
-					return ctrl.Result{}, fmt.Errorf("faield to patch the power status on host %s: %w", host.Name, err)
+					return ctrl.Result{}, fmt.Errorf("failed to patch the power status on host %s: %w", host.Name, err)
 				}
 			}
-			log.V(1).Info("Host powered on")
+			log.V(1).Info("Powered on host")
 		} else {
 			hostBase := host.DeepCopy()
 			host.Spec.Power = claim.Spec.Power
 			if err := r.Patch(ctx, host, client.MergeFrom(hostBase)); err != nil {
-				return ctrl.Result{}, fmt.Errorf("faield to patch the power status on host %s: %w", host.Name, err)
+				return ctrl.Result{}, fmt.Errorf("failed to patch the power status on host %s: %w", host.Name, err)
 			}
 		}
-		log.V(1).Info("Ensured power state")
+		log.V(1).Info("Ensured host power state")
 	}
 
 	claimBase := claim.DeepCopy()
