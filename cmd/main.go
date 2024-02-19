@@ -19,11 +19,9 @@ package main
 import (
 	"flag"
 	"os"
-	"time"
-
-	"github.com/afritzler/baremetal-operator/internal/controller/metal"
 
 	coreafritzlergithubiov1alpha1 "github.com/afritzler/baremetal-operator/api/metal/v1alpha1"
+	"github.com/afritzler/baremetal-operator/internal/controller/metal"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -60,9 +58,7 @@ func main() {
 	var enableLeaderElection bool
 	var probeAddr string
 	var PXEServiceNamespace string
-	var hostRefreshInterval time.Duration
 
-	flag.DurationVar(&hostRefreshInterval, "host-refresh-interval", 60*time.Second, "Interval to refresh the host state.")
 	flag.StringVar(&PXEServiceNamespace, "pxe-namespace", "oob", "The namespace of the PXE service.")
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
@@ -101,9 +97,8 @@ func main() {
 	}
 
 	if err = (&metal.BareMetalHostReconciler{
-		Client:              mgr.GetClient(),
-		Scheme:              mgr.GetScheme(),
-		HostRefreshInterval: hostRefreshInterval,
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "BareMetalHost")
 		os.Exit(1)

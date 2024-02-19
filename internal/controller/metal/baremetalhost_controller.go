@@ -27,6 +27,7 @@ import (
 	"github.com/stmcginnis/gofish/redfish"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/wait"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -34,8 +35,7 @@ import (
 // BareMetalHostReconciler reconciles a BareMetalHost object
 type BareMetalHostReconciler struct {
 	client.Client
-	Scheme              *runtime.Scheme
-	HostRefreshInterval time.Duration
+	Scheme *runtime.Scheme
 }
 
 //+kubebuilder:rbac:groups=metal.afritzler.github.io,resources=baremetalhosts,verbs=get;list;watch;create;update;patch;delete
@@ -51,7 +51,7 @@ func (r *BareMetalHostReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	if err := r.Get(ctx, req.NamespacedName, host); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
-	return ctrl.Result{RequeueAfter: r.HostRefreshInterval}, r.reconcileExists(ctx, log, host)
+	return ctrl.Result{}, r.reconcileExists(ctx, log, host)
 }
 
 func (r *BareMetalHostReconciler) reconcileExists(ctx context.Context, log logr.Logger, host *metalv1alpha1.BareMetalHost) error {
@@ -100,24 +100,55 @@ func (r *BareMetalHostReconciler) reconcile(ctx context.Context, log logr.Logger
 	return nil
 }
 
-func (r *BareMetalHostReconciler) ensurePowerState(_ context.Context, _ logr.Logger, bmcClient bmc.BMC, host *metalv1alpha1.BareMetalHost) error {
+func (r *BareMetalHostReconciler) ensurePowerState(ctx context.Context, log logr.Logger, bmcClient bmc.BMC, host *metalv1alpha1.BareMetalHost) error {
 	// TODO: this needs to go into the actual state machine
 	if host.Status.State == metalv1alpha1.StateInitial {
+		log.V(1).Info("Setting PXE boot once for the next start")
 		if err := bmcClient.SetPXEBootOnce(host.Spec.SystemID); err != nil {
 			return fmt.Errorf("failed to set boot PXE once boot order for host: %w", err)
 		}
 	}
 
 	if host.Spec.Power == metalv1alpha1.PowerStateOn && host.Status.PowerState == redfish.OffPowerState {
+		log.V(1).Info("Powering on host")
 		if err := bmcClient.PowerOn(); err != nil {
 			return fmt.Errorf("failed to change power state to %s: %w", metalv1alpha1.PowerStateOn, err)
 		}
+		// TODO: make the timeout configurable via flag
+		if err := wait.PollUntilContextTimeout(ctx, 5*time.Second, 20*time.Second, true, func(ctx context.Context) (done bool, err error) {
+			sysInfo, err := bmcClient.GetSystemInfo()
+			if err != nil {
+				return false, err
+			}
+			if sysInfo.PowerState != redfish.OnPowerState {
+				return false, nil
+			}
+			return true, nil
+		}); err != nil {
+			return fmt.Errorf("failed to wait for power on host condition: %w", err)
+		}
+		log.V(1).Info("Powered on host")
 	}
 
 	if host.Spec.Power == metalv1alpha1.PowerStateOff && host.Status.PowerState == redfish.OnPowerState {
+		log.V(1).Info("Powering off host")
 		if err := bmcClient.PowerOff(); err != nil {
 			return fmt.Errorf("failed to change power state to %s: %w", metalv1alpha1.PowerStateOff, err)
 		}
+		// TODO: make the timeout configurable via flag
+		if err := wait.PollUntilContextTimeout(ctx, 5*time.Second, 20*time.Second, true, func(ctx context.Context) (done bool, err error) {
+			sysInfo, err := bmcClient.GetSystemInfo()
+			if err != nil {
+				return false, err
+			}
+			if sysInfo.PowerState != redfish.OffPowerState {
+				return false, nil
+			}
+			return true, nil
+		}); err != nil {
+			return fmt.Errorf("failed to wait for power off host condition: %w", err)
+		}
+		log.V(1).Info("Powered off host")
 	}
 
 	return nil
