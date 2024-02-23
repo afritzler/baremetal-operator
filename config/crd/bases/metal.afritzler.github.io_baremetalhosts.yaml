@@ -17,6 +17,9 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
+    - jsonPath: .status.systemUUID
+      name: SystemUUID
+      type: string
     - jsonPath: .status.manufacturer
       name: Manufacturer
       type: string
@@ -159,9 +162,6 @@ spec:
                     type: string
                 type: object
                 x-kubernetes-map-type: atomic
-              fooUuid:
-                description: 'TODO: remove this later as this is a dummy code'
-                type: string
               power:
                 type: string
               systemId:
@@ -236,6 +236,8 @@ spec:
               systemState:
                 description: State indicates the known state of the resource, such
                   as if it is enabled.
+                type: string
+              systemUUID:
                 type: string
             required:
             - processors

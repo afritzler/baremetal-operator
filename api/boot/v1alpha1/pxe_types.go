@@ -28,7 +28,7 @@ var (
 
 // PXESpec defines the desired state of PXE
 type PXESpec struct {
-	SystemUUID            string                   `json:"systemUuid"`
+	SystemUUID            string                   `json:"systemUUID"`
 	BareMetalHostClaimRef v1.LocalObjectReference  `json:"bareMetalHostRef"`
 	IgnitionRef           *v1.LocalObjectReference `json:"ignitionRef,omitempty"`
 	Image                 string                   `json:"image,omitempty"`

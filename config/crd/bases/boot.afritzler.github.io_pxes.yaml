@@ -62,9 +62,6 @@ spec:
                     type: string
                 type: object
                 x-kubernetes-map-type: atomic
-              fooUuid:
-                description: 'TODO: this needs to go in the future'
-                type: string
               ignitionRef:
                 description: |-
                   LocalObjectReference contains enough information to let you locate the
@@ -80,8 +77,11 @@ spec:
                 x-kubernetes-map-type: atomic
               image:
                 type: string
+              systemUUID:
+                type: string
             required:
             - bareMetalHostRef
+            - systemUUID
             type: object
           status:
             description: PXEStatus defines the observed state of PXE
