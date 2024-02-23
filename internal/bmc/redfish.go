@@ -33,9 +33,9 @@ func NewRedfishBMC(ctx context.Context, systemId string, bmcConfig v1alpha1.BMCC
 	return &RedfishBMC{systemId: systemId, client: client}, nil
 }
 
-// GetClient returns the BMC API client
-func (r *RedfishBMC) GetClient() *gofish.APIClient {
-	return r.client
+// Logout closes the BMC client connection by logging out
+func (r *RedfishBMC) Logout() {
+	r.client.Logout()
 }
 
 // PowerOn powers on the system using Redfish.
