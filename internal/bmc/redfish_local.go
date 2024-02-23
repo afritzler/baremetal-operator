@@ -96,6 +96,7 @@ func (r *RedfishLocalBMC) GetSystemInfo() (SystemInfo, error) {
 	systemInfo := SystemInfo{}
 	for _, system := range systems {
 		if system.ID == r.systemId {
+			systemInfo.SystemUUID = system.UUID
 			systemInfo.Manufacturer = system.Manufacturer
 			systemInfo.Model = system.Model
 			systemInfo.Status = system.Status

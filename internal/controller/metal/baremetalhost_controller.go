@@ -252,6 +252,7 @@ func (r *BareMetalHostReconciler) updateHostStatusFromSystemInfo(ctx context.Con
 	log.V(1).Info("Retrieved system info")
 
 	hostBase := host.DeepCopy()
+	host.Status.SystemUUID = info.SystemUUID
 	host.Status.Manufacturer = info.Manufacturer
 	host.Status.Model = info.Model
 	host.Status.Health = info.Status.Health

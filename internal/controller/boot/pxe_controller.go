@@ -74,7 +74,7 @@ func (r *PXEReconciler) delete(ctx context.Context, _ logr.Logger, pxeConfig *bo
 	pxeSecret := &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: r.PXEServiceNamespace,
-			Name:      fmt.Sprintf("ipxe-%s", pxeConfig.Spec.FooUUID),
+			Name:      fmt.Sprintf("ipxe-%s", pxeConfig.Spec.SystemUUID),
 		},
 	}
 	if err := r.Delete(ctx, pxeSecret); err != nil {
@@ -118,7 +118,7 @@ func (r *PXEReconciler) reconcile(ctx context.Context, log logr.Logger, pxeConfi
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: r.PXEServiceNamespace,
-			Name:      fmt.Sprintf("ipxe-%s", pxeConfig.Spec.FooUUID),
+			Name:      fmt.Sprintf("ipxe-%s", pxeConfig.Spec.SystemUUID),
 		},
 		Data: ignitionSecret.Data,
 	}
