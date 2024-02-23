@@ -210,7 +210,7 @@ func (r *BareMetalHostClaimReconciler) applyPXEConfiguration(ctx context.Context
 			BareMetalHostClaimRef: v1.LocalObjectReference{Name: claim.Name},
 			IgnitionRef:           claim.Spec.IgnitionRef,
 			Image:                 claim.Spec.Image,
-			FooUUID:               host.Spec.FooUUID,
+			SystemUUID:            host.Status.SystemUUID,
 		},
 	}
 

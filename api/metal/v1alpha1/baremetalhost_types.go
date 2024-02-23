@@ -52,9 +52,7 @@ const (
 
 // BareMetalHostSpec defines the desired state of BareMetalHost
 type BareMetalHostSpec struct {
-	SystemID string `json:"systemId"`
-	// TODO: remove this later as this is a dummy code
-	FooUUID  string              `json:"fooUuid,omitempty"`
+	SystemID string              `json:"systemId"`
 	Power    PowerState          `json:"power"`
 	ClaimRef *v1.ObjectReference `json:"claimRef,omitempty"`
 	BMC      BMCConfiguration    `json:"bmc"`
@@ -99,6 +97,7 @@ type Processor struct {
 
 // BareMetalHostStatus defines the observed state of BareMetalHost
 type BareMetalHostStatus struct {
+	SystemUUID        string             `json:"systemUUID,omitempty"`
 	Manufacturer      string             `json:"manufacturer,omitempty"`
 	Model             string             `json:"model,omitempty"`
 	SerialNumber      string             `json:"serialNumber,omitempty"`
@@ -117,6 +116,7 @@ type BareMetalHostStatus struct {
 //+kubebuilder:resource:scope=Cluster,shortName=host
 
 // BareMetalHost is the Schema for the baremetalhosts API
+// +kubebuilder:printcolumn:name="SystemUUID",type="string",JSONPath=".status.systemUUID"
 // +kubebuilder:printcolumn:name="Manufacturer",type="string",JSONPath=".status.manufacturer"
 // +kubebuilder:printcolumn:name="Model",type="string",JSONPath=".status.model"
 // +kubebuilder:printcolumn:name="PowerState",type="string",JSONPath=".status.powerState"

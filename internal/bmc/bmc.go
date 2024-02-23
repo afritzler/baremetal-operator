@@ -53,4 +53,5 @@ type SystemInfo struct {
 	PowerState        redfish.PowerState
 	NetworkInterfaces []NetworkInterface
 	Processors        []Processor
+	SystemUUID        string
 }
